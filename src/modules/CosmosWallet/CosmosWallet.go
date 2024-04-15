@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 )
 
@@ -17,14 +20,20 @@ type CosmosWallet struct {
 	validatorAddress string
 }
 
-// Ubik Capital
-// cosmosvaloper1q6d3d089hg59x6gcx92uumx70s5y5wadklue8s
-
 func NewWallet() *CosmosWallet {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	// wallet (Delegator) - 4935033 ATOM
-	address := "cosmos1gqu2kthx340yu7gnjhnj4vfuxk50kuy90mf76a"
+	address := os.Getenv("DELEGATOR")
 	// Validator (staking)
-	validatorAddress := "cosmosvaloper1de7qx00pz2j6gn9k88ntxxylelkazfk3g8fgh9"
+	validatorAddress := os.Getenv("VALIDATOR")
+
+	fmt.Printf("Wallet address: %v\n", address)
+	fmt.Printf("Validator address: %v\n", validatorAddress)
 
 	return &CosmosWallet{
 		address: address,
@@ -106,12 +115,13 @@ func (wallet CosmosWallet) ClaimStakingRewards(grpcConn *grpc.ClientConn) (int, 
 }
 
 func (wallet CosmosWallet) Stake(grpcConn *grpc.ClientConn, tokens int) error {
-	validator, err := wallet.getStakeValidator(grpcConn)
+	// validator, err := wallet.getStakeValidator(grpcConn)
+	_, err := wallet.getStakeValidator(grpcConn)
 	if err != nil {
 		fmt.Printf("Error getting stake validator: %s\n", err)
 		return err
 	}
-	fmt.Printf("Validator: %v\n", validator)
+	// fmt.Printf("Validator: %v\n", validator)
 
 	staked, err := wallet.getStakedAmount(grpcConn)
 	if err != nil {

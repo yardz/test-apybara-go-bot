@@ -4,6 +4,7 @@ go 1.22.1
 
 require (
 	github.com/cosmos/cosmos-sdk v0.50.5
+	github.com/joho/godotenv v1.5.1
 	google.golang.org/grpc v1.63.2
 )
 
